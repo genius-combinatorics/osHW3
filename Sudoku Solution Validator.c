@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <pthread.h>
 
-#define N 9  // اندازه جدول سودوکو (9x9)
+#define N 9  
 
 int sudoku[N][N] = {
     {6, 2, 4, 5, 3, 9, 1, 8, 7},
