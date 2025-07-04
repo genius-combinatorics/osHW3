@@ -3,8 +3,8 @@
 
 #define SIZE 10  // اندازه آرایه (قابل تغییر)
 
-int arr[SIZE] = {38, 27, 43, 3, 9, 82, 10, 65, 1, 56};  // آرایه اصلی
-int sorted_arr[SIZE];  // آرایه نهایی مرتب شده
+int arr[SIZE] = {38, 27, 43, 3, 9, 82, 10, 65, 1, 56}; 
+int sorted_arr[SIZE];  
 
 int mid = SIZE / 2;
 
