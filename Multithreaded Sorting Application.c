@@ -1,11 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 
-#define SIZE 10
-
-int arr[SIZE] = {38, 27, 43, 3, 9, 82, 10, 65, 1, 56}; 
-int sorted_arr[SIZE];  
-int mid = SIZE / 2;
+int *arr;          // Dynamic array
+int *sorted_arr;  
+int SIZE;          // Will be determined by user input
+int mid;           // Calculated after SIZE is known
 
 // Bubble sort for a subarray
 void bubble_sort(int start, int end) {
@@ -42,32 +42,57 @@ void* merge(void* arg) {
             sorted_arr[k++] = arr[j++];
         }
     }
-    while (i < mid) sorted_arr[k++] = arr[i++];  // Remaining left elements
-    while (j < SIZE) sorted_arr[k++] = arr[j++]; // Remaining right elements
+    while (i < mid) sorted_arr[k++] = arr[i++];
+    while (j < SIZE) sorted_arr[k++] = arr[j++];
     pthread_exit(NULL);
 }
 
 int main() {
+    // Get array size from user
+    printf("Enter the size of the array: ");
+    scanf("%d", &SIZE);
+    
+    // Validate input size
+    if (SIZE <= 0) {
+        printf("Invalid array size. Please enter a positive integer.\n");
+        return 1;
+    }
+    
+    // Allocate memory for arrays
+    arr = (int*)malloc(SIZE * sizeof(int));
+    sorted_arr = (int*)malloc(SIZE * sizeof(int));
+    mid = SIZE / 2;
+    
+    // Get array elements from user
+    printf("Enter %d integers (separated by spaces or newlines):\n", SIZE);
+    for (int i = 0; i < SIZE; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    // Thread execution
     pthread_t tid1, tid2, tid_merge;
 
-    // --- PHASE 1: Sort in parallel ---
-    pthread_create(&tid1, NULL, sort_left, NULL);  // Thread 1: Left half
-    pthread_create(&tid2, NULL, sort_right, NULL);  // Thread 2: Right half
+    // PHASE 1: Sort in parallel
+    pthread_create(&tid1, NULL, sort_left, NULL);
+    pthread_create(&tid2, NULL, sort_right, NULL);
 
-    // Wait for sorting threads to finish
     pthread_join(tid1, NULL);
     pthread_join(tid2, NULL);
 
-    // --- PHASE 2: Merge ---
-    pthread_create(&tid_merge, NULL, merge, NULL);  // Thread 3: Merge
-    pthread_join(tid_merge, NULL);                  // Wait for merge to finish
+    // PHASE 2: Merge
+    pthread_create(&tid_merge, NULL, merge, NULL);
+    pthread_join(tid_merge, NULL);
 
-    // --- PHASE 3: Parent thread prints the result ---
-    printf("Parent thread prints the sorted array:\n");
+    // PHASE 3: Print result
+    printf("Sorted array:\n");
     for (int i = 0; i < SIZE; i++) {
         printf("%d ", sorted_arr[i]);
     }
     printf("\n");
+
+    // Free allocated memory
+    free(arr);
+    free(sorted_arr);
 
     return 0;
 }
