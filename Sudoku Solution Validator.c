@@ -3,19 +3,8 @@
 
 #define N 9  
 
-int sudoku[N][N] = {
-    {6, 2, 4, 5, 3, 9, 1, 8, 7},
-    {5, 1, 9, 7, 2, 8, 6, 3, 4},
-    {8, 3, 7, 6, 1, 4, 2, 9, 5},
-    {1, 4, 3, 8, 6, 5, 7, 2, 9},
-    {9, 5, 8, 2, 4, 7, 3, 6, 1},
-    {7, 6, 2, 3, 9, 1, 4, 5, 8},
-    {3, 7, 1, 9, 5, 6, 8, 4, 2},
-    {4, 9, 6, 1, 8, 2, 5, 7, 3},
-    {2, 8, 5, 4, 7, 3, 9, 1, 6}
-};
-
-int valid = 1;  // متغیر برای ذخیره وضعیت کلی جدول معتبر بودن
+int sudoku[N][N];
+int valid = 1;  // Variable to store the overall validity status
 
 void* check_row(void* arg) {
     int row = *((int*) arg);
@@ -64,29 +53,46 @@ void* check_box(void* arg) {
     pthread_exit(NULL);
 }
 
+void read_sudoku() {
+    printf("Enter the Sudoku puzzle (9x9 matrix, numbers separated by spaces):\n");
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            scanf("%d", &sudoku[i][j]);
+        }
+    }
+}
+
 int main() {
     pthread_t threads[27];
     int index[27];
 
+    // Read the Sudoku puzzle from user input
+    read_sudoku();
+
+    // Create threads for row checks
     for (int i = 0; i < N; i++) {
         index[i] = i;
         pthread_create(&threads[i], NULL, check_row, &index[i]);
     }
 
+    // Create threads for column checks
     for (int i = 0; i < N; i++) {
         index[i + N] = i;
         pthread_create(&threads[i + N], NULL, check_col, &index[i + N]);
     }
 
+    // Create threads for box checks
     for (int i = 0; i < N; i++) {
         index[i + 2 * N] = i;
         pthread_create(&threads[i + 2 * N], NULL, check_box, &index[i + 2 * N]);
     }
 
+    // Wait for all threads to complete
     for (int i = 0; i < 27; i++) {
         pthread_join(threads[i], NULL);
     }
 
+    // Print the result
     if (valid)
         printf("Sudoku is valid.\n");
     else
@@ -94,4 +100,3 @@ int main() {
 
     return 0;
 }
-
